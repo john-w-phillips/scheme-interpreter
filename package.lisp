@@ -24,12 +24,21 @@
 	   *syntax-table*
 	   *define-return*
 	   *the-global-environment*
+	   *scheme-true-value*
+	   *scheme-false-value*
 	   macro-define?
 	   macro?
 	   macro-definition-body
 	   macro-definition-vars
 	   make-macro-from-definition
 	   macro-definition-name
-	   macro-environment))
+	   macro-environment
+	   quoted?
+	   quotation-text
+	   procedure?
+	   procedure-body
+	   procedure-vars
+	   procedure-env
+	   make-procedure))
 (defpackage :scheme-compiler-tests
   (:use :cl :asdf :lisp-unit :scheme-compiler))

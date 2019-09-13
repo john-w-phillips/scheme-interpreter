@@ -75,20 +75,32 @@
       (make-frame
        (procedure-vars op)
        (listof-arguments ops env)))))))
+(defun ask-for-input ()
+  (format t ";;; Eval => ~%")
+  (finish-output *standard-output*))
+(defun declare-output ()
+  (format t ";;; Value => "))
 
 (defun user-print (input)
   (cond
    ((procedure? input)
     (print 'procedure))
+   ((eql input *scheme-true-value*)
+    (print "#t"))
+   ((eql input *scheme-false-value*)
+    (print "#f"))
    (t
-    (print input))))
+    (print input)))
+  (format t "~%"))
     
 (defun driver-loop ()
-  (let ((input (read)))
-    (if (and (symbolp input) (string= input :repl-quit))
-	'ok
-	(progn
-	  (user-print (schemeval input *the-global-environment*))
-	  (finish-output *standard-output*)
-	  (driver-loop)))))
-
+  (let ((*package* (find-package :scheme-compiler)))
+    (ask-for-input)
+    (let ((input (read)))
+      (if (and (symbolp input) (string= input :repl-quit))
+	  'ok
+	  (progn
+	    (declare-output)
+	    (user-print (schemeval input *the-global-environment*))
+	    (finish-output *standard-output*)
+	    (driver-loop))))))

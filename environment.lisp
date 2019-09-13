@@ -77,7 +77,7 @@
 (defun environment-lookup-val (environ var)
   (let ((found (environment-find-cell environ var)))
     (if (null found)
-	(error "Undefined variable -- ENVIRONMENT-LOOKUP-VAL")
+	(error (format nil "Undefined variable -- ENVIRONMENT-LOOKUP-VAL ~a" var))
       (cell-define-value found))))
 
 
@@ -88,16 +88,23 @@
 	(cell-assign-value cell val)
 	(frame-assign-val (environment-first-frame env) var val))))
 
+
 (defvar *global-primitives*
   (list (list '+ '+)
 	(list '* '*)
 	(list 'car 'car)
 	(list 'cons 'cons)
 	(list 'cdr 'cdr)
+	(list 'list 'list)
 	(list '- '-)
 	(list '< '<)
 	(list '> '>)
-	(list '= '=)))
+	(list '= '=)
+	(list 'pair? 'consp)
+	(list 'symbol? 'symbolp)
+	(list 'number? 'numberp)
+	(list 'string? 'stringp)
+	(list 'eq? 'eql)))
 
 (defun setup-environment (input-environ)
   (extend-environment
@@ -117,5 +124,16 @@
 (defvar *macros-frame*
   (make-frame '() '()))
 
-(assign-value 'true t *the-global-environment*)
-(assign-value 'false nil *the-global-environment*)
+(defvar *scheme-true-value* t)
+(defvar *scheme-false-value* nil)
+
+(defun scheme-true? (val)
+  (eql val *scheme-true-value*))
+
+(defun scheme-false? (val)
+  (eql val *scheme-false-value*))
+
+(assign-value 'true *scheme-true-value*
+	      *the-global-environment*)
+(assign-value 'false *scheme-false-value*
+	      *the-global-environment*)

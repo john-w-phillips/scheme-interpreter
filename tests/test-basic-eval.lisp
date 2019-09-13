@@ -50,7 +50,16 @@
 	:predicate predicate
 	:evaluator evaller)))))
 
-
+(define-test test-lambda-accessors
+  (assert-true
+   (procedure? { (lambda (x) (+ x x)) }))
+  (assert-equalp
+   (procedure-body (schemeval { (lambda (x) (+ x x)) } *the-global-environment*))
+   { ((+ x x)) })
+  (assert-equalp
+   (procedure-vars (schemeval { (lambda (x y) (+ x y)) } *the-global-environment*))
+   { (x y) }))
+	   
 (define-test test-lambda-eval
   (assert-equal
    (schemeval

@@ -18,10 +18,36 @@
 ;; Quotation forms
 (defun quoted? (expr)
   (and (consp expr)
-       (tagged-list? expr 'quote)))
+       (or
+	(tagged-list? expr 'quote)
+	(tagged-list? expr 'sb-int:quasiquote))))
+
+;; (defun quotation-text (expr env)
+;;   (declare (ignore env))
+;;   (cadr expr))
+(defun quasiquote-atom (expr env)
+  (cond
+    ((sb-impl::comma-p expr)
+     (schemeval (sb-impl::comma-expr expr) env))
+    (t expr)))
+
+(defun quasiquote-text (expr env)
+  (cond
+    ((null expr) '())
+    ((consp expr)
+     (cons
+      (quasiquote-text (car expr) env)
+      (quasiquote-text (cdr expr) env)))
+    (t
+     (quasiquote-atom expr env))))
+
 (defun quotation-text (expr env)
-  (declare (ignore env))
-  (cadr expr))
+  (cond
+    ((eql 'sb-int:quasiquote (car expr))
+     (quasiquote-text (cadr expr) env))
+    (t
+     (cadr expr))))
+   
 (put-syntax #'quoted? #'quotation-text)
 
 
@@ -76,7 +102,7 @@
      (cddr expr)
      env))
    (t
-    (caddr expr))))
+    (schemeval (caddr expr) env))))
 
 (defun eval-definition (expr env)
   (assign-value
@@ -118,3 +144,25 @@
 (defun eval-lambda (exp env)
   (make-procedure-from-lambda exp env))
 (put-syntax #'procedure? #'eval-lambda)
+
+;; and
+(defun and? (expr)
+  (tagged-list? expr 'and))
+(defun and-ops (expr)
+  (cdr expr))
+(defun first-op (ops)
+  (car ops))
+(defun rest-ops (ops)
+  (cdr ops))
+
+(defun eval-and-ops (ops env)
+  (cond
+    ((null ops) *scheme-true-value*)
+    (t
+     (if (scheme-true? (schemeval (first-op ops) env))
+	 (eval-and-ops (rest-ops ops) env)
+	 *scheme-false-value*))))
+(defun eval-and (expr env)
+  (eval-and-ops (and-ops expr) env))
+(put-syntax #'and? #'eval-and)
+

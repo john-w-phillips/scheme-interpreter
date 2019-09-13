@@ -19,8 +19,10 @@
     '(x body)))
 
 (define-test test-simple-macro
-  (assert-equal (schemeval { (define-macro (when x body)
-				 (list 'if x body 'false))
-			   (when true 15 0) }
-			   *the-global-environment*)
-		15))
+  (assert-equal 15
+		(progn
+		  (schemeval { (define-macro (when x body)
+				   (list 'if x body 'false)) }
+				   *the-global-environment*)
+		  (schemeval { (when true 15) }
+			     *the-global-environment*))))
