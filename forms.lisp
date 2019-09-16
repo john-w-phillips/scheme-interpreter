@@ -166,3 +166,20 @@
   (eval-and-ops (and-ops expr) env))
 (put-syntax #'and? #'eval-and)
 
+
+;; or
+(defun or? (expr)
+  (tagged-list? expr 'or))
+(defun or-ops (expr)
+  (cdr expr))
+(defun eval-or-ops (ops env)
+  (cond
+    ((null ops) *scheme-false-value*)
+    (t
+     (if (scheme-true? (schemeval (first-op ops) env))
+	 *scheme-true-value*
+	 (eval-or-ops (rest-ops ops) env)))))
+(defun eval-or (expr env)
+  (eval-or-ops (or-ops expr) env))
+(put-syntax #'or? #'eval-or)
+  

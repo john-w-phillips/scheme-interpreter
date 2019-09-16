@@ -104,6 +104,10 @@
 	(list 'symbol? 'symbolp)
 	(list 'number? 'numberp)
 	(list 'string? 'stringp)
+	(list 'eval 'schemeval)
+	(list 'apply 'interpreter-apply)
+	(list 'read 'read)
+	(list 'write 'write)
 	(list 'eq? 'eql)))
 
 (defun setup-environment (input-environ)
@@ -136,4 +140,7 @@
 (assign-value 'true *scheme-true-value*
 	      *the-global-environment*)
 (assign-value 'false *scheme-false-value*
+	      *the-global-environment*)
+(assign-value 'user-initial-environment
+	      *the-global-environment*
 	      *the-global-environment*)

@@ -17,6 +17,8 @@
 			:components ((:file "test-basic-eval")
 				     (:file "test-quotations")
 				     (:file "test-environment")
+				     (:file "test-and-or")
+				     (:file "test-apply")
 				     (:file "test-macros")))))
 
   

@@ -35,6 +35,16 @@
 (defun operands (expr)
   (cdr expr))
 
+(defun interpreter-apply (op &rest args)
+  "APPLY in the scheme, which takes no environment argument"
+  (cond
+    ((null args)
+     (error (format nil "The apply procedure has been called with no arguments")))
+    ((null (cdr args))
+     (apply #'schemeapply (list op (car args) *the-global-environment*)))
+    (t
+     (apply #'schemeapply (list op args *the-global-environment*)))))
+
 (defun schemeval (expr env)
   (let ((found-syntax (find-syntax expr)))
     (cond
@@ -47,6 +57,8 @@
       (t (error (format nil  "Cannot evaluate ~a~%" expr))))))
 
 (defun listof-arguments (exprs env)
+  "Given exprs and env, eval all exprs in the proper order, 
+and return evaled args"
   (if (null exprs)
       '()
     (cons (schemeval (first-expr exprs) env)
@@ -75,6 +87,7 @@
       (make-frame
        (procedure-vars op)
        (listof-arguments ops env)))))))
+
 (defun ask-for-input ()
   (format t ";;; Eval => ~%")
   (finish-output *standard-output*))
