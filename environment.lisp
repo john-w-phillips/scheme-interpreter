@@ -106,6 +106,7 @@
 	(list 'string? 'stringp)
 	(list 'eval 'schemeval)
 	(list 'apply 'interpreter-apply)
+	(list 'load 'schemeload)
 	(list 'read 'read)
 	(list 'write 'write)
 	(list 'eq? 'eql)))
@@ -143,4 +144,7 @@
 	      *the-global-environment*)
 (assign-value 'user-initial-environment
 	      *the-global-environment*
+	      *the-global-environment*)
+(assign-value 'load (make-primitive-procedure
+		     'schemeload)
 	      *the-global-environment*)

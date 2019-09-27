@@ -105,15 +105,20 @@ and return evaled args"
    (t
     (print input)))
   (format t "~%"))
-    
+
+(defun evaluate-input (input)
+  (if (and (symbolp input) (string= input :repl-quit))
+      'ok
+      (progn
+	(declare-output)
+	(user-print (schemeval input *the-global-environment*))
+	(finish-output *standard-output*)
+	(driver-loop))))
+
 (defun driver-loop ()
   (let ((*package* (find-package :scheme-compiler)))
     (ask-for-input)
-    (let ((input (read)))
-      (if (and (symbolp input) (string= input :repl-quit))
-	  'ok
-	  (progn
-	    (declare-output)
-	    (user-print (schemeval input *the-global-environment*))
-	    (finish-output *standard-output*)
-	    (driver-loop))))))
+    (handler-case 
+	(evaluate-input (read))
+      (end-of-file (var) (declare (ignore var))
+		   (format t ";;; End of session~%")))))

@@ -12,6 +12,7 @@
 	       (:file "forms")
 	       (:file "macros")
 	       (:file "eval")
+	       (:file "load")
 	       (:module tests
 			:depends-on ("eval")
 			:components ((:file "test-basic-eval")
@@ -19,6 +20,7 @@
 				     (:file "test-environment")
 				     (:file "test-and-or")
 				     (:file "test-apply")
+				     (:file "test-load")
 				     (:file "test-macros")))))
 
   
