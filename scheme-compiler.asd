@@ -21,6 +21,7 @@
 				     (:file "test-and-or")
 				     (:file "test-apply")
 				     (:file "test-load")
+				     (:file "test-assignment")
 				     (:file "test-macros")))))
 
   

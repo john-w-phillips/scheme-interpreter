@@ -183,3 +183,18 @@
   (eval-or-ops (or-ops expr) env))
 (put-syntax #'or? #'eval-or)
   
+(defun assignment? (expr)
+  (tagged-list? expr 'set!))
+
+(defun assignment-variable (expr)
+  (cadr expr))
+
+(defun assignment-value-expr (expr)
+  (caddr expr))
+
+(defun eval-assignment (expr env)
+  (let ((var (assignment-variable expr))
+	(value (schemeval (assignment-value-expr expr)
+			  env)))
+    (assign-value var value env)))
+(put-syntax #'assignment? #'eval-assignment)
