@@ -106,19 +106,59 @@ and return evaled args"
     (print input)))
   (format t "~%"))
 
+(defun debugger-get-option-number ()
+  (parse-integer (read-line)))
+
+(defun print-debug-options ()
+  (format t ";; An Error has been detected. Please pick an option: ~%")
+  (format t ";; => 1. Continue and return nil ~%")
+  (format t ";; => 2. Quit ~%"))
+
+(defun debugger (the-error)
+  (print-debug-options)
+  (let ((option-number (debugger-get-option-number)))
+    (cond
+      ((= option-number 1)
+       nil)
+      ((= option-number 2)
+       (scheme-quit "User requested quit"))
+      (t
+       (format t ";;; Invalid debugger input: ~a quitting...~%"
+	       option-number)
+       (scheme-quit "Bad option")))))
+
+(defun handle-error (input)
+  (handler-case
+      (schemeval input *the-global-environment*)
+    (error (c)
+      (debugger c))))
+	      
 (defun evaluate-input (input)
   (if (and (symbolp input) (string= input :repl-quit))
       'ok
       (progn
-	(declare-output)
-	(user-print (schemeval input *the-global-environment*))
-	(finish-output *standard-output*)
-	(driver-loop))))
+	(let ((output (handle-error input)))
+	  (declare-output)
+	  (user-print output)
+	  (finish-output *standard-output*)))))
+
+(define-condition scheme-quit (error)
+  ((message :initarg :message)))
+
+(defun scheme-quit (message)
+  (error 'scheme-quit :message message))
 
 (defun driver-loop ()
-  (let ((*package* (find-package :scheme-compiler)))
-    (ask-for-input)
-    (handler-case 
-	(evaluate-input (read))
-      (end-of-file (var) (declare (ignore var))
-		   (format t ";;; End of session~%")))))
+  (handler-bind
+      ((scheme-quit #'(lambda (c) (format t ";;; Quitting scheme...~%")
+			      (return-from driver-loop))))
+    (let ((*package* (find-package :scheme-compiler)))
+      (ask-for-input)
+      (handler-case
+	  (progn
+	    (let ((the-input (read)))
+	      (evaluate-input the-input)
+	      (driver-loop)))
+	(end-of-file (var) (declare (ignore var))
+		     (format t ";;; EOF~%")
+		     (scheme-quit "EOF"))))))

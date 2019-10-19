@@ -92,6 +92,7 @@
 (defvar *global-primitives*
   (list (list '+ '+)
 	(list '* '*)
+	(list '/ '/)
 	(list 'car 'car)
 	(list 'cons 'cons)
 	(list 'cdr 'cdr)
