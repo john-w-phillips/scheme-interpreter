@@ -22,6 +22,7 @@
 				     (:file "test-apply")
 				     (:file "test-load")
 				     (:file "test-assignment")
-				     (:file "test-macros")))))
+				     (:file "test-macros")
+				     (:file "test-error-handling")))))
 
   

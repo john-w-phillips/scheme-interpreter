@@ -198,3 +198,21 @@
 			  env)))
     (assign-value var value env)))
 (put-syntax #'assignment? #'eval-assignment)
+
+(defun try-except? (expr)
+  (tagged-list? expr 'try-except))
+
+(defun try-except-tryexpr (expr)
+  (cadr expr))
+
+(defun try-except-exceptexpr (expr)
+  (caddr expr))
+
+(defun eval-try-except (expr env)
+  (let ((tryexpr (try-except-tryexpr expr))
+	(except-expr (try-except-exceptexpr expr)))
+    (handler-case
+	(schemeval tryexpr env)
+      (scheme-error (err)
+	(schemeval except-expr env)))))
+(put-syntax #'try-except? #'eval-try-except)

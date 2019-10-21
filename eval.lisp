@@ -66,10 +66,20 @@ and return evaled args"
 	   (rest-expr exprs)
 	   env))))
 
+(defun apply-primitive-op (op ops env)
+  (handler-case
+      (apply (primitive-procedure-proc op)
+	     (listof-arguments ops env))
+    (error (e)
+      (scheme-primitive-error :error e
+			      :environment env
+			      :op op
+			      :ops ops))))
+
 (defun schemeapply (op ops env)
   (cond
-   ((primitive-procedure? op)
-    (apply (primitive-procedure-proc op) (listof-arguments ops env)))
+    ((primitive-procedure? op)
+     (apply-primitive-op op ops env))
    ((macro? op)
     (schemeval (schemeval-sequence
 		(macro-body op)
@@ -142,9 +152,23 @@ and return evaled args"
 	  (user-print output)
 	  (finish-output *standard-output*)))))
 
-(define-condition scheme-quit (error)
+(define-condition scheme-error (error) ())
+(define-condition scheme-quit (scheme-error)
   ((message :initarg :message)))
 
+(define-condition scheme-primitive-error (scheme-error)
+  ((env :initarg :environment)
+   (op :initarg :op)
+   (ops :initarg :ops)
+   (error :initarg :error)))
+
+(defun scheme-primitive-error (&key error environment op ops)
+  (error 'scheme-primitive-error
+	 :environment environment
+	 :error error
+	 :op op
+	 :ops ops))
+    
 (defun scheme-quit (message)
   (error 'scheme-quit :message message))
 
