@@ -13,6 +13,7 @@
 	       (:file "macros")
 	       (:file "eval")
 	       (:file "load")
+	       (:file "debugger")
 	       (:module tests
 			:depends-on ("eval")
 			:components ((:file "test-basic-eval")
