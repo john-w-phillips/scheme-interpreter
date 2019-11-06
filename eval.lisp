@@ -141,7 +141,7 @@ and return evaled args"
   (handler-case
       (schemeval input *the-global-environment*)
     (error (c)
-      (debugger c))))
+      (console-debugger-debug c))))
 	      
 (defun evaluate-input (input)
   (if (and (symbolp input) (string= input :repl-quit))

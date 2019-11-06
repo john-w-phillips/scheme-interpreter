@@ -143,9 +143,9 @@
 	      *the-global-environment*)
 (assign-value 'false *scheme-false-value*
 	      *the-global-environment*)
-(assign-value 'user-initial-environment
-	      *the-global-environment*
-	      *the-global-environment*)
+;; (assign-value 'user-initial-environment
+;; 	      *the-global-environment*
+;; 	      *the-global-environment*)
 (assign-value 'load (make-primitive-procedure
 		     'schemeload)
 	      *the-global-environment*)

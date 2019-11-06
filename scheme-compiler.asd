@@ -1,7 +1,7 @@
 (defsystem :scheme-compiler
   :name "scheme-compiler"
   :version "0.0.0"
-  :depends-on (#:lisp-unit)
+  :depends-on (#:lisp-unit #:cl-ppcre)
   :build-operation "program-op"
   :build-pathname "scheme"
   :entry-point "scheme-compiler:driver-loop"
@@ -24,6 +24,7 @@
 				     (:file "test-load")
 				     (:file "test-assignment")
 				     (:file "test-macros")
+				     (:file "test-debugger")
 				     (:file "test-error-handling")))))
 
   

@@ -39,6 +39,24 @@
 	   procedure-body
 	   procedure-vars
 	   procedure-env
-	   make-procedure))
+	   make-procedure
+	   make-primitive-procedure
+	   option-key
+	   option-name
+	   UP
+	   PRINT-FRAME
+	   QUIT
+	   debugger
+	   controller
+	   menu-option
+	   view-options
+	   view-send-results
+	   view-get-key-input
+	   viewer
+	   string-value
+	   view-output
+	   interact-with-user
+	   scheme-error
+	   scheme-primitive-error))
 (defpackage :scheme-compiler-tests
   (:use :cl :asdf :lisp-unit :scheme-compiler))
