@@ -46,7 +46,7 @@
     (assert-equalp
      (environment-find-cell new-environ 'a)
      (make-cell 'a 2))
-    (assert-equalp
-     (enclosing-environment new-environ)
-     the-empty-environment)))
+    (assert-true
+     (empty-environment?
+     (enclosing-environment new-environ)))))
 

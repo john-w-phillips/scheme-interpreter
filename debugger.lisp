@@ -26,6 +26,7 @@
 
 (defmethod view-get-key-input ((view console-menu-view))
   (format t "Please press a key...")
+  (finish-output)
   (let ((num (parse-integer (read-line))))
     num))
 
@@ -92,7 +93,7 @@
 			   (make-instance
 			    'view-output
 			    :string (format nil
-					    "~a : ~a~%"
+					    "~a : ~a"
 					    (car cell)
 					    (print-a-value (cdr cell))))))
 			(print-frame (cdr frame-cells))))))
@@ -117,19 +118,6 @@
 	 (interact-with-user control view debugger))
 	((equalp option QUIT) 'ok)
 	(t (error "Invalid option"))))))
-
-;; (defmethod interact-with-user ((debugger debugger))
-;;   (progn
-;;     (debugger-display-menu debugger)
-;;     (let ((option (debugger-get-option debugger)))
-;;       (cond
-;; 	((= option PRINT-FRAME)
-;; 	 (print-current-frame debugger)
-;; 	 (interact-with-user debugger))
-;; 	((= option UP)
-;; 	 (go-one-frame-up debugger)
-;; 	 (interact-with-user))
-;; 	(t (error "Invalid option"))))))
 
 (defun console-debugger-debug (an-error)
   (let ((debugger (make-instance 'debugger

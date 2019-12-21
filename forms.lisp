@@ -31,13 +31,23 @@
      (schemeval (sb-impl::comma-expr expr) env))
     (t expr)))
 
+(defconstant at-kind 2 "Constant type of @ splices, ripped from SBCL code")
+(defun comma-at-splice? (expr)
+  (and
+   (sb-impl::comma-p expr)
+   (= (sb-impl::comma-kind expr) at-kind)))
+
 (defun quasiquote-text (expr env)
   (cond
     ((null expr) '())
     ((consp expr)
-     (cons
-      (quasiquote-text (car expr) env)
-      (quasiquote-text (cdr expr) env)))
+     (let ((cdr-text (quasiquote-text (cdr expr) env))
+	   (car-text (quasiquote-text (car expr) env)))
+       (if (comma-at-splice? (car expr))
+	   (append
+	    car-text
+	    cdr-text)
+	   (cons car-text cdr-text))))
     (t
      (quasiquote-atom expr env))))
 

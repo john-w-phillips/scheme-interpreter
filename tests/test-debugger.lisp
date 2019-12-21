@@ -30,7 +30,7 @@
 (define-test test-debugger-display
     (let ((env
 	   (extend-environment
-	    '()
+	    the-empty-environment
 	    (make-frame
 	     (list '+ 'a)
 	     (list (make-primitive-procedure '+) 2)))))

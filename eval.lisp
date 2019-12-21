@@ -116,32 +116,13 @@ and return evaled args"
     (print input)))
   (format t "~%"))
 
-(defun debugger-get-option-number ()
-  (parse-integer (read-line)))
-
-(defun print-debug-options ()
-  (format t ";; An Error has been detected. Please pick an option: ~%")
-  (format t ";; => 1. Continue and return nil ~%")
-  (format t ";; => 2. Quit ~%"))
-
-(defun debugger (the-error)
-  (print-debug-options)
-  (let ((option-number (debugger-get-option-number)))
-    (cond
-      ((= option-number 1)
-       nil)
-      ((= option-number 2)
-       (scheme-quit "User requested quit"))
-      (t
-       (format t ";;; Invalid debugger input: ~a quitting...~%"
-	       option-number)
-       (scheme-quit "Bad option")))))
-
 (defun handle-error (input)
   (handler-case
       (schemeval input *the-global-environment*)
     (error (c)
-      (console-debugger-debug c))))
+      (progn
+	(format t "Caught error ~a" (scheme-parent-error c))
+	(console-debugger-debug c)))))
 	      
 (defun evaluate-input (input)
   (if (and (symbolp input) (string= input :repl-quit))
@@ -160,7 +141,7 @@ and return evaled args"
   ((env :initarg :environment)
    (op :initarg :op)
    (ops :initarg :ops)
-   (error :initarg :error)))
+   (error :initarg :error :reader scheme-parent-error)))
 
 (defun scheme-primitive-error (&key error environment op ops)
   (error 'scheme-primitive-error

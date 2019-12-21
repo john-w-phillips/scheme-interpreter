@@ -1,4 +1,8 @@
 (in-package :scheme-compiler)
+(defclass environment ()
+  ((frame-list :initarg :frames)))
+
+
 (defun make-cell (var val)
   (cons var val))
 
@@ -49,32 +53,40 @@
 			  frame)))
 	      (cons (cons var val) '()))))))
 
-(defvar the-empty-environment '())
-(defun extend-environment (env frame)
-  (cons frame env))
+(defvar the-empty-environment (make-instance 'environment :frames '()))
+(defmethod extend-environment ((env environment) frame)
+  (with-slots (frame-list) env
+    (make-instance
+     'environment
+     :frames (cons frame frame-list))))
 
-(defun enclosing-environment (env)
-  (cdr env))
+(defmethod  enclosing-environment ((env environment))
+  (with-slots (frame-list) env
+    (make-instance
+     'environment
+     :frames (cdr frame-list))))
 
-(defun environment-first-frame (env)
-  (car env))
+(defmethod environment-first-frame ((env environment))
+  (with-slots (frame-list) env
+    (car frame-list)))
 
-(defun empty-environment? (environment)
-  (null environment))
+(defmethod empty-environment? ((env environment))
+  (with-slots (frame-list) env
+    (null frame-list)))
 
-(defun environment-find-cell (environment var)
-  (if (empty-environment? environment)
+(defmethod environment-find-cell ((env environment) var)
+  (if (empty-environment? env)
       nil
-    (let ((found (frame-lookup-val
-		  (environment-first-frame environment)
-		  var)))
-      (if (null found)
-	  (environment-find-cell
-	   (enclosing-environment environment)
-	   var)
-	found))))
+      (let ((found (frame-lookup-val
+		    (environment-first-frame env)
+		    var)))
+	(if (null found)
+	    (environment-find-cell
+	     (enclosing-environment env)
+	     var)
+	    found))))
 
-(defun environment-lookup-val (environ var)
+(defmethod environment-lookup-val ((environ environment) var)
   (let ((found (environment-find-cell environ var)))
     (if (null found)
 	(error (format nil "Undefined variable -- ENVIRONMENT-LOOKUP-VAL ~a" var))
@@ -88,6 +100,8 @@
 	(cell-assign-value cell val)
 	(frame-assign-val (environment-first-frame env) var val))))
 
+(defun interpreter-get-internal-time-ms ()
+  (get-internal-real-time))
 
 (defvar *global-primitives*
   (list (list '+ '+)
@@ -102,6 +116,7 @@
 	(list '> '>)
 	(list '= '=)
 	(list 'pair? 'consp)
+	(list 'internal-time-ms 'interpreter-get-internal-time-ms)
 	(list 'symbol? 'symbolp)
 	(list 'number? 'numberp)
 	(list 'string? 'stringp)
@@ -143,9 +158,9 @@
 	      *the-global-environment*)
 (assign-value 'false *scheme-false-value*
 	      *the-global-environment*)
-;; (assign-value 'user-initial-environment
-;; 	      *the-global-environment*
-;; 	      *the-global-environment*)
+(assign-value 'user-initial-environment
+	      *the-global-environment*
+	      *the-global-environment*)
 (assign-value 'load (make-primitive-procedure
 		     'schemeload)
 	      *the-global-environment*)
