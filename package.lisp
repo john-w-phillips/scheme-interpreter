@@ -1,5 +1,5 @@
 (defpackage :scheme-compiler
-  (:use :cl :asdf)
+  (:use :cl :asdf :equals)
   (:export driver-loop
 	   schemeval
 	   schemeapply
@@ -12,8 +12,8 @@
 	   frame?
 	   frame-assign-val
 	   make-cell
-	   cell-define-value
-	   cell-define-variable
+	   cell-value
+	   cell-variable
 	   cell-assign-value
 	   empty-environment?
 	   extend-environment
@@ -59,4 +59,4 @@
 	   scheme-error
 	   scheme-primitive-error))
 (defpackage :scheme-compiler-tests
-  (:use :cl :asdf :lisp-unit :scheme-compiler))
+  (:use :cl :asdf :equals :parachute :scheme-compiler))

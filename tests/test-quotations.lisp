@@ -1,17 +1,18 @@
 (in-package :scheme-compiler-tests)
 
 (define-test test-quotation-text-predicate
-  (assert-true (quoted?
+  (true (quoted?
 		(with-input-from-string
 		    (is "'(cat)")
 		  (read is))))
-  (assert-true (quoted?
+  (true (quoted?
 		(with-input-from-string
 		    (is "`(cat)")
 		  (read is)))))
 
 (define-test test-quotation-text-simple
-  (assert-equalp
+  (is
+   equalp
    (quotation-text
     (with-input-from-string
 	(is "'(a quoted (list of) lists)")
@@ -19,7 +20,8 @@
    '(a quoted (list of) lists)))
 
 (define-test test-quasiquote-text
-  (assert-equalp
+  (is
+   equalp
    { (a quoted (list of) lists) }
    (progn
      (schemeval { (define outside-list (list 'list 'of)) }
@@ -31,4 +33,3 @@
 	  (read is)))
       *the-global-environment*))))
     
-

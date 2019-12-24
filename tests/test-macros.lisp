@@ -1,25 +1,29 @@
 (in-package :scheme-compiler-tests)
 
 (define-test test-macro-accessors
-  (assert-equal
+  (is
+   equal
    (macro-definition-name { (define-macro (when x body) (list 'if x body 'false)) })
    { when })
-  (assert-true
+  (true
    (macro-define? { (define-macro (when x body) (list 'if x body 'false)) }))
-  (assert-true
+  (true
    (macro? (make-macro-from-definition
 	    { (define-macro (when x body) (list 'if x body 'false)) } 'ENV)))
-  (assert-equalp
+  (is
+   equalp
    (macro-definition-body
     '(define-macro (when x body) (list 'if x body 'false)))
     (list '(list 'if x body 'false)))
-  (assert-equalp
+  (is
+   equalp
    (macro-definition-vars
     '(define-macro (when x body) (list 'if x body 'false)))
     '(x body)))
 
 (define-test test-simple-macro
-  (assert-equal 15
+  (is
+   equal 15
 		(progn
 		  (schemeval { (define-macro (when x body)
 				   (list 'if x body 'false)) }

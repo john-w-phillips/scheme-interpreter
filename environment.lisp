@@ -1,18 +1,34 @@
 (in-package :scheme-compiler)
+(proclaim '(optimize debug))
 (defclass environment ()
   ((frame-list :initarg :frames)))
 
+;; (defclass cell ()
+;;   ((variable :initar :var)
+;;    (value :initarg :val)))
+(defclass cell ()
+  ((variable :initarg :var :reader cell-variable)
+   (value :initarg :val :reader cell-value)))
+(defun (setf cell-value) (value cell)
+  (setf (slot-value cell 'value) value))
+
+(defmethod equals ((a cell) (b cell) &key)
+  (and
+   (eq (cell-variable a) (cell-variable b))
+   (equalp (cell-value a) (cell-value b))))
+(defmethod print-object ((obj cell) s)
+  (write-string
+   (format nil "#{VARIABLE-CELL variable: '~a' value: '~a'}"
+	   (cell-variable obj)
+	   (cell-value obj))
+   s)
+  s)
 
 (defun make-cell (var val)
-  (cons var val))
+  (make-instance 'cell :var var :val val))
 
-(defun cell-define-variable (cell)
-  (car cell))
-(defun cell-define-value (cell)
-  (cdr cell))
-
-(defun cell-assign-value (cell val)
-  (setf (cdr cell) val))
+;; (defun cell-assign-value (cell val)
+;;   (setf (cdr cell) val))
 
 (defun make-frame (vars vals)
   (list 'frame
@@ -35,8 +51,8 @@
   (let ((found (remove-if
 		(lambda (obj)
 		  (not (or
-			(eq (car obj) name)
-			(string= (car obj) name))))
+			(eq (cell-variable obj) name)
+			(string= (cell-variable obj) name))))
 		(frame-define-cells frame))))
     (if (not (null found))
 	(car found)
@@ -45,13 +61,13 @@
 (defun frame-assign-val (frame var val)
   (let ((found (frame-lookup-val frame var)))
     (if found
-	(cell-assign-value found val)
+	(setf (cell-value found) val)
       (if (frame-empty? frame)
 	  (setf (cadr frame)
-		(list (cons var val)))
+		(list (make-cell var val)))
 	(setf (cdr (last (frame-define-cells
 			  frame)))
-	      (cons (cons var val) '()))))))
+	      (cons (make-cell var val) '()))))))
 
 (defvar the-empty-environment (make-instance 'environment :frames '()))
 (defmethod extend-environment ((env environment) frame)
@@ -90,14 +106,14 @@
   (let ((found (environment-find-cell environ var)))
     (if (null found)
 	(error (format nil "Undefined variable -- ENVIRONMENT-LOOKUP-VAL ~a" var))
-      (cell-define-value found))))
+      (cell-value found))))
 
 
 
 (defun assign-value (var val env)
   (let ((cell (environment-find-cell env var)))
     (if cell
-	(cell-assign-value cell val)
+	(setf (cell-value cell) val)
 	(frame-assign-val (environment-first-frame env) var val))))
 
 (defun interpreter-get-internal-time-ms ()
@@ -131,14 +147,14 @@
   (extend-environment
    input-environ
    (make-frame 
-   (mapcar
-    (lambda (x)
-      (car x))
-    *global-primitives*)
-   (mapcar
-    (lambda (x)
-      (make-primitive-procedure (cadr x)))
-    *global-primitives*))))
+    (mapcar
+     (lambda (x)
+       (car x))
+     *global-primitives*)
+    (mapcar
+     (lambda (x)
+       (make-primitive-procedure (cadr x)))
+     *global-primitives*))))
 
 (defvar *the-global-environment*
   (setup-environment the-empty-environment))

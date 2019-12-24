@@ -1,8 +1,15 @@
 (in-package :scheme-compiler)
+(defclass primitive-procedure ()
+  ((procedure :initarg :proc :reader primitive-procedure-proc)))
+
+(defmethod print-object ((p primitive-procedure) s)
+  (write-string
+   (format nil "[primitive-procedure ~a]" (primitive-procedure-proc p))
+   s)
+  s)
+
 (defun make-primitive-procedure (proc)
-  (list 'primitive-procedure proc))
-(defun primitive-procedure-proc (proc)
-  (cadr proc))
+  (make-instance 'primitive-procedure :proc proc))
 
 (defun primitive-procedure? (proc)
-  (tagged-list? proc 'primitive-procedure))
+  (eq (type-of proc) 'primitive-procedure))

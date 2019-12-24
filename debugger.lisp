@@ -93,10 +93,8 @@
 			   (make-instance
 			    'view-output
 			    :string (format nil
-					    "~a : ~a"
-					    (car cell)
-					    (print-a-value (cdr cell))))))
-			(print-frame (cdr frame-cells))))))
+					    "~a" cell)))
+			  (print-frame (cdr frame-cells)))))))
 	    (print-frame (frame-define-cells current-frame)))))))
 (defclass controller () ())
 

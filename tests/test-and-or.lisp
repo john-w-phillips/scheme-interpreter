@@ -1,22 +1,26 @@
 (in-package :scheme-compiler-tests)
 
 (define-test test-and
-  (assert-true
+  (true
    (schemeval { (and true true true) } *the-global-environment*))
-  (assert-true
+  (true
    (schemeval { (and) } *the-global-environment*))
-  (assert-equal
+  (is
+   equal
    *scheme-false-value*
    (schemeval { (and true true true false) } *the-global-environment*)))
 
 (define-test test-or
-  (assert-equal
+  (is
+   equal
    (schemeval { (or false false) } *the-global-environment*)
    *scheme-false-value*)
-  (assert-equal
+  (is
+   equal
    (schemeval { (or true) } *the-global-environment*)
    *scheme-true-value*)
-  (assert-equal
+  (is
+   equal
    (schemeval { (or false false true false) } *the-global-environment*)
    *scheme-true-value*))
 	      

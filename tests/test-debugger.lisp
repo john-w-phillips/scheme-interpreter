@@ -7,7 +7,8 @@
    (keys-to-ask-for :initarg :keys-to-ask-for)))
 (defmethod view-options ((view test-view) title &rest options)
   (with-slots (expected-options-list) view
-    (assert-equalp
+    (is
+     equalp
      expected-options-list
      (mapcar #'scheme-compiler:option-key options))))
 
@@ -21,7 +22,7 @@
   (with-slots (expected-outputs-list) view
     (mapcar
      (lambda (a b)
-       (assert-true (not (null (ppcre:scan a (string-value b))))))
+       (true (not (null (ppcre:scan a (string-value b))))))
      (car expected-outputs-list)
      outputs)
     (setq expected-outputs-list (cdr expected-outputs-list))))
@@ -46,8 +47,8 @@
 						   scheme-compiler:PRINT-FRAME
 						   scheme-compiler:QUIT)
 			    :expected-outputs-list
-			    (list (list "\\+.*\\[primitive-procedure.*\\]")
-				  (list "[aA].*2"))))
+			    (list (list ".*\\+.*\\[primitive-procedure.*\\]")
+				  (list ".*[aA].*2"))))
 	    (control
 	     (make-instance 'scheme-compiler:controller))
 	    (debugger

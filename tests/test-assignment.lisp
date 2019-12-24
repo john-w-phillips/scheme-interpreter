@@ -1,7 +1,8 @@
 (in-package :scheme-compiler-tests)
 
 (define-test test-assignment
-  (assert-equal
+  (is
+   equal
    10
    (progn
      (mapcar
