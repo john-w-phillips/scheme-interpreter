@@ -53,7 +53,7 @@
 
 (define-test test-lambda-accessors
   (true
-   (procedure? { (lambda (x) (+ x x)) }))
+   (lambda? { (lambda (x) (+ x x)) }))
   (is
    equalp
    (procedure-body (schemeval { (lambda (x) (+ x x)) } *the-global-environment*))

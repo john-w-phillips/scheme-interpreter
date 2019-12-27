@@ -3,11 +3,15 @@
 (defvar *syntax-table* '())
 (defstruct syntax-item
   predicate
-  evaluator)
+  evaluator
+  analyzer)
 
 (defun dispatch-syntax (syntaxitem exprs env)
   (funcall (syntax-item-evaluator syntaxitem) exprs env))
-   
+
+(defun analyze-syntax (syntaxitem exprs)
+  (funcall (syntax-item-analyzer syntaxitem) exprs))
+
 (defun find-syntax (exprs)
   (let ((found (remove-if
 		(lambda (item)
@@ -18,12 +22,19 @@
     (if found
 	(car found)
 	nil)))
+(defclass analyzed-syntax ()
+    ((thunk :initarg :thunk)))
 
-(defun put-syntax (predicate evaluation)
+(defun make-analyzed-syntax (thunk)
+  (make-instance 'analyzed-syntax :thunk thunk))
+(defmethod execute-syntax ((syn analyzed-syntax) env)
+  (funcall (slot-value syn 'thunk) env))
+(defun put-syntax (predicate evaluation &optional (analyzer nil))
   (setq *syntax-table*
 	(cons
 	 (make-syntax-item
 	  :predicate predicate
-	  :evaluator evaluation)
+	  :evaluator evaluation
+	  :analyzer analyzer)
 	 *syntax-table*)))
 

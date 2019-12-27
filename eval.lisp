@@ -44,17 +44,58 @@
      (apply #'schemeapply (list op (car args) *the-global-environment*)))
     (t
      (apply #'schemeapply (list op args *the-global-environment*)))))
-
-(defun schemeval (expr env)
+(defun schemeanalyze (expr)
   (let ((found-syntax (find-syntax expr)))
     (cond
       ((not (null found-syntax))
-       (dispatch-syntax found-syntax expr env))
+       (analyze-syntax found-syntax expr))
       ((application? expr)
-       (schemeapply (schemeval (operator expr) env)
-		    (operands expr)
-		    env))
-      (t (error (format nil  "Cannot evaluate ~a~%" expr))))))
+       (schemeanalyze-application expr)))))
+(defun listof-analyzed-exprs (exprs)
+  (mapcar #'schemeanalyze exprs))
+
+(defun schemeanalyze-application (expr)
+    (let ((args (listof-analyzed-exprs (operands expr)))
+	  (operation (schemeanalyze (operator expr))))
+      (make-analyzed-syntax
+       (lambda (env)
+	 (let ((evaled-args (mapcar (lambda (arg) (execute-syntax arg env)) args))
+	       (evaled-op (execute-syntax operation env)))
+	   (cond
+	     ((primitive-procedure? evaled-op)
+	      (apply-primitive-op evaled-op evaled-args env))
+	     ((macro? evaled-op)
+	      (schemeval
+	       (execute-syntax
+		evaled-op
+		(extend-environment
+		 (macro-environment evaled-op)
+		 (make-frame
+		  (macro-vars evaled-op)
+		  (operands expr))))
+	       env))
+	     ((procedure? evaled-op)
+	      (execute-syntax
+	       evaled-op
+	       (extend-environment
+		(procedure-env evaled-op)
+		(make-frame
+		 (procedure-vars evaled-op)
+		 evaled-args))))
+	     (t (error "Unknown syntax type"))))))))
+(defun schemeval (expr env)
+  (execute-syntax (schemeanalyze expr) env))
+
+;; (defun schemeval (expr env)
+;;   (let ((found-syntax (find-syntax expr)))
+;;     (cond
+;;       ((not (null found-syntax))
+;;        (dispatch-syntax found-syntax expr env))
+;;       ((application? expr)
+;;        (schemeapply (schemeval (operator expr) env)
+;; 		    (operands expr)
+;; 		    env))
+;;       (t (error (format nil  "Cannot evaluate ~a~%" expr))))))
 
 (defun listof-arguments (exprs env)
   "Given exprs and env, eval all exprs in the proper order, 
@@ -68,8 +109,7 @@ and return evaled args"
 
 (defun apply-primitive-op (op ops env)
   (handler-case
-      (apply (primitive-procedure-proc op)
-	     (listof-arguments ops env))
+      (apply (primitive-procedure-proc op) ops)
     (error (e)
       (scheme-primitive-error :error e
 			      :environment env
